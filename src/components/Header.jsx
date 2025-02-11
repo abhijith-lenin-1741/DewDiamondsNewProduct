@@ -1,4 +1,14 @@
+import Cookies from "js-cookie";
 const Header = () => {
+  function logOutFunction() {
+    // window.localStorage.removeItem('loggedInUsername');
+    // window.localStorage.removeItem('loggedInUserPassword');
+    // window.localStorage.removeItem('loggedInUserrole');
+    Cookies.remove("authToken"); // Replace "token" with your cookie name
+   
+
+    navigate("/");
+}
   return (
     <>
       <div className="main-header">
@@ -361,7 +371,7 @@ const Header = () => {
                         Account Setting
                       </a>
                       <div className="dropdown-divider" />
-                      <a className="dropdown-item" href="#">
+                      <a class="dropdown-item" href="#" onClick={logOutFunction}>
                         Logout
                       </a>
                     </li>
