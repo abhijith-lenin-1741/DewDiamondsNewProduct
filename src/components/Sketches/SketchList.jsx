@@ -175,6 +175,10 @@ const SketchList = () => {
                         </thead>
                         <tbody>
                           <SketchListTable />
+                          <SketchListTable />
+                          <SketchListTable />
+                          <SketchListTable />
+
                         </tbody>
                       </table>
                     </div>

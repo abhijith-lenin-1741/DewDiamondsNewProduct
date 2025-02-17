@@ -1,4 +1,14 @@
 import React from "react";
+import { Card, Avatar } from "antd";
+import {
+  SketchOutlined,
+  EditOutlined,
+  BuildOutlined,
+  FileTextOutlined,
+  PictureOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { Pie } from "@ant-design/charts"; 
 import Table from "./Table";
 import Header from "./Header";
 import SideBar from "./SideBar";
@@ -6,660 +16,113 @@ import Footer from "./Footer";
 import { useSelector } from "react-redux";
 
 const DashBoard = () => {
-  const sideBarState = useSelector(state => state?.sidebar?.sideBar)
-  console.log("sidebar", sideBarState)
+  const sideBarState = useSelector((state) => state?.sidebar?.sideBar);
+
+  // Manually defined items for each category
+  const cardData = [
+    { title: "PD/Concept", icon: <SketchOutlined />, color: "#667eea", items: ["Create PD", "Lists", 'Approval Lists'] },
+    { title: "Sketches", icon: <EditOutlined />, color: "#ff9a9e", items: ["Lists", 'Approval Lists', "Grid View"] },
+    { title: "Design", icon: <BuildOutlined />, color: "#42e695", items: ["Design Bank", "Design Master"] },
+    { title: "Reports", icon: <FileTextOutlined />, color: "#ff9966", items: ["Design Report", "Designer Report"] },
+    { title: "Albums", icon: <PictureOutlined />, color: "#56ccf2", items: ["Sent to Customer", "Dew Album"] },
+    { title: "Employees", icon: <UserOutlined />, color: "#f4d03f", items: ["Add Employee", "List"] },
+  ];
+
+  // Prepare data for Pie Chart
+  const chartData = cardData.map((item) => ({
+    type: item.title,
+    value: item.items.length,
+    color: item.color,
+  }));
+
+  const chartConfig = {
+    data: chartData,
+    angleField: "value",
+    colorField: "type",
+    radius: 1,
+    color: cardData.map((item) => item.color),
+    label: {
+      type: "inner",
+      offset: "-30%",
+      content: ({ percent }) => `${(percent * 100).toFixed(0)}%`,
+      style: { fontSize: 12, fontWeight: "bold", fill: "#fff" },
+    },
+    interactions: [{ type: "element-active" }],
+    pieStyle: ({ type }) => ({
+      stroke: "#fff",
+      lineWidth: 2,
+      cursor: "pointer",
+      transition: "all 0.3s",
+      filter: `drop-shadow(0px 5px 10px ${chartData.find(item => item.type === type)?.color}66)`,
+    }),
+  };
+
   return (
-    <>
-      <div className={`wrapper ${sideBarState ? 'sidebar_minimize' : ""}`}>
-        {/* Sidebar */}
-        <SideBar />
-        {/* End Sidebar */}
-        <div className="main-panel">
-          <Header />
-          <div className="container">
-            <div className="page-inner">
-
-
-              <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-                <div>
-                  <h3 className="fw-bold mb-3">Dashboard</h3>
-                  <h6 className="op-7 mb-2">
-                    Free Bootstrap 5 Admin Dashboard
-                  </h6>
-                </div>
-                <div className="ms-md-auto py-2 py-md-0">
-                  <a href="#" className="btn btn-label-info btn-round me-2">
-                    Manage
-                  </a>
-                  <a href="#" className="btn btn-primary btn-round">
-                    Add Customer
-                  </a>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-sm-6 col-md-3">
-                  <div className="card card-stats card-round">
-                    <div className="card-body">
-                      <div className="row align-items-center">
-                        <div className="col-icon">
-                          <div className="icon-big text-center icon-primary bubble-shadow-small">
-                            <i className="fas fa-users" />
-                          </div>
-                        </div>
-                        <div className="col col-stats ms-3 ms-sm-0">
-                          <div className="numbers">
-                            <p className="card-category">Visitors</p>
-                            <h4 className="card-title">1,294</h4>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+    <div className={`wrapper ${sideBarState ? "sidebar_minimize" : ""}`}>
+      <SideBar />
+      <div className="main-panel">
+        <Header />
+        <div className="container">
+          <div className="page-inner" style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+            {/* Cards Section */}
+            <div style={{ flex: 2, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "15px" }}>
+              {cardData.map((card, index) => (
+                <Card
+                  key={index}
+                  hoverable
+                  style={{
+                    borderRadius: "10px",
+                    background: `linear-gradient(135deg, ${card.color} 30%, rgba(255,255,255,0.1))`,
+                    color: "#fff",
+                    padding: "15px",
+                    boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.1)",
+                    transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+                    backdropFilter: "blur(10px)",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-5px)";
+                    e.currentTarget.style.boxShadow = `0px 10px 25px ${card.color}88`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0px)";
+                    e.currentTarget.style.boxShadow = "0px 5px 15px rgba(0, 0, 0, 0.1)";
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <Avatar
+                      size={45}
+                      style={{
+                        background: "rgba(255, 255, 255, 0.2)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "22px",
+                        color: "#fff",
+                        backdropFilter: "blur(5px)",
+                      }}
+                    >
+                      {card.icon}
+                    </Avatar>
+                    <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "500" }}>{card.title}</h3>
                   </div>
-                </div>
-                <div className="col-sm-6 col-md-3">
-                  <div className="card card-stats card-round">
-                    <div className="card-body">
-                      <div className="row align-items-center">
-                        <div className="col-icon">
-                          <div className="icon-big text-center icon-info bubble-shadow-small">
-                            <i className="fas fa-user-check" />
-                          </div>
-                        </div>
-                        <div className="col col-stats ms-3 ms-sm-0">
-                          <div className="numbers">
-                            <p className="card-category">Subscribers</p>
-                            <h4 className="card-title">1303</h4>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-6 col-md-3">
-                  <div className="card card-stats card-round">
-                    <div className="card-body">
-                      <div className="row align-items-center">
-                        <div className="col-icon">
-                          <div className="icon-big text-center icon-success bubble-shadow-small">
-                            <i className="fas fa-luggage-cart" />
-                          </div>
-                        </div>
-                        <div className="col col-stats ms-3 ms-sm-0">
-                          <div className="numbers">
-                            <p className="card-category">Sales</p>
-                            <h4 className="card-title">$ 1,345</h4>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-6 col-md-3">
-                  <div className="card card-stats card-round">
-                    <div className="card-body">
-                      <div className="row align-items-center">
-                        <div className="col-icon">
-                          <div className="icon-big text-center icon-secondary bubble-shadow-small">
-                            <i className="far fa-check-circle" />
-                          </div>
-                        </div>
-                        <div className="col col-stats ms-3 ms-sm-0">
-                          <div className="numbers">
-                            <p className="card-category">Order</p>
-                            <h4 className="card-title">576</h4>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* <div className="row">
-                <div className="col-md-8">
-                  <div className="card card-round">
-                    <div className="card-header">
-                      <div className="card-head-row">
-                        <div className="card-title">User Statistics</div>
-                        <div className="card-tools">
-                          <a
-                            href="#"
-                            className="btn btn-label-success btn-round btn-sm me-2"
-                          >
-                            <span className="btn-label">
-                              <i className="fa fa-pencil" />
-                            </span>
-                            Export
-                          </a>
-                          <a
-                            href="#"
-                            className="btn btn-label-info btn-round btn-sm"
-                          >
-                            <span className="btn-label">
-                              <i className="fa fa-print" />
-                            </span>
-                            Print
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="card-body">
-                      <div
-                        className="chart-container"
-                        style={{ minHeight: "375px" }}
-                      >
-                        <canvas id="statisticsChart" />
-                      </div>
-                      <div id="myChartLegend" />
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="card card-primary card-round">
-                    <div className="card-header">
-                      <div className="card-head-row">
-                        <div className="card-title">Daily Sales</div>
-                        <div className="card-tools">
-                          <div className="dropdown">
-                            <button
-                              className="btn btn-sm btn-label-light dropdown-toggle"
-                              type="button"
-                              id="dropdownMenuButton"
-                              data-bs-toggle="dropdown"
-                              aria-haspopup="true"
-                              aria-expanded="false"
-                            >
-                              Export
-                            </button>
-                            <div
-                              className="dropdown-menu"
-                              aria-labelledby="dropdownMenuButton"
-                            >
-                              <a className="dropdown-item" href="#">
-                                Action
-                              </a>
-                              <a className="dropdown-item" href="#">
-                                Another action
-                              </a>
-                              <a className="dropdown-item" href="#">
-                                Something else here
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="card-category">March 25 - April 02</div>
-                    </div>
-                    <div className="card-body pb-0">
-                      <div className="mb-4 mt-2">
-                        <h1>$4,578.58</h1>
-                      </div>
-                      <div className="pull-in">
-                        <canvas id="dailySalesChart" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="card card-round">
-                    <div className="card-body pb-0">
-                      <div className="h1 fw-bold float-end text-primary">
-                        +5%
-                      </div>
-                      <h2 className="mb-2">17</h2>
-                      <p className="text-muted">Users online</p>
-                      <div className="pull-in sparkline-fix">
-                        <div id="lineChart" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
-              {/* <div className="row">
-                <div className="col-md-12">
-                  <div className="card card-round">
-                    <div className="card-header">
-                      <div className="card-head-row card-tools-still-right">
-                        <h4 className="card-title">Users Geolocation</h4>
-                        <div className="card-tools">
-                          <button className="btn btn-icon btn-link btn-primary btn-xs">
-                            <span className="fa fa-angle-down" />
-                          </button>
-                          <button className="btn btn-icon btn-link btn-primary btn-xs btn-refresh-card">
-                            <span className="fa fa-sync-alt" />
-                          </button>
-                          <button className="btn btn-icon btn-link btn-primary btn-xs">
-                            <span className="fa fa-times" />
-                          </button>
-                        </div>
-                      </div>
-                      <p className="card-category">
-                        Map of the distribution of users around the world
-                      </p>
-                    </div>
-                    <div className="card-body">
-                      <div className="row">
-                        <div className="col-md-6">
-                          <div className="table-responsive table-hover table-sales">
-                            <table className="table">
-                              <tbody>
-                                <tr>
-                                  <td>
-                                    <div className="flag">
-                                      <img
-                                        src="assets/img/flags/id.png"
-                                        alt="indonesia"
-                                      />
-                                    </div>
-                                  </td>
-                                  <td>Indonesia</td>
-                                  <td className="text-end">2.320</td>
-                                  <td className="text-end">42.18%</td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <div className="flag">
-                                      <img
-                                        src="assets/img/flags/us.png"
-                                        alt="united states"
-                                      />
-                                    </div>
-                                  </td>
-                                  <td>USA</td>
-                                  <td className="text-end">240</td>
-                                  <td className="text-end">4.36%</td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <div className="flag">
-                                      <img
-                                        src="assets/img/flags/au.png"
-                                        alt="australia"
-                                      />
-                                    </div>
-                                  </td>
-                                  <td>Australia</td>
-                                  <td className="text-end">119</td>
-                                  <td className="text-end">2.16%</td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <div className="flag">
-                                      <img
-                                        src="assets/img/flags/ru.png"
-                                        alt="russia"
-                                      />
-                                    </div>
-                                  </td>
-                                  <td>Russia</td>
-                                  <td className="text-end">1.081</td>
-                                  <td className="text-end">19.65%</td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <div className="flag">
-                                      <img
-                                        src="assets/img/flags/cn.png"
-                                        alt="china"
-                                      />
-                                    </div>
-                                  </td>
-                                  <td>China</td>
-                                  <td className="text-end">1.100</td>
-                                  <td className="text-end">20%</td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <div className="flag">
-                                      <img
-                                        src="assets/img/flags/br.png"
-                                        alt="brazil"
-                                      />
-                                    </div>
-                                  </td>
-                                  <td>Brasil</td>
-                                  <td className="text-end">640</td>
-                                  <td className="text-end">11.63%</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="mapcontainer">
-                            <div
-                              id="world-map"
-                              className="w-100"
-                              style={{ height: "300px" }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
-              {/* <div className="row">
-                <div className="col-md-4">
-                  <div className="card card-round">
-                    <div className="card-body">
-                      <div className="card-head-row card-tools-still-right">
-                        <div className="card-title">New Customers</div>
-                        <div className="card-tools">
-                          <div className="dropdown">
-                            <button
-                              className="btn btn-icon btn-clean me-0"
-                              type="button"
-                              id="dropdownMenuButton"
-                              data-bs-toggle="dropdown"
-                              aria-haspopup="true"
-                              aria-expanded="false"
-                            >
-                              <i className="fas fa-ellipsis-h" />
-                            </button>
-                            <div
-                              className="dropdown-menu"
-                              aria-labelledby="dropdownMenuButton"
-                            >
-                              <a className="dropdown-item" href="#">
-                                Action
-                              </a>
-                              <a className="dropdown-item" href="#">
-                                Another action
-                              </a>
-                              <a className="dropdown-item" href="#">
-                                Something else here
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="card-list py-4">
-                        <div className="item-list">
-                          <div className="avatar">
-                            <img
-                              src="assets/img/jm_denis.jpg"
-                              alt="..."
-                              className="avatar-img rounded-circle"
-                            />
-                          </div>
-                          <div className="info-user ms-3">
-                            <div className="username">Jimmy Denis</div>
-                            <div className="status">Graphic Designer</div>
-                          </div>
-                          <button className="btn btn-icon btn-link op-8 me-1">
-                            <i className="far fa-envelope" />
-                          </button>
-                          <button className="btn btn-icon btn-link btn-danger op-8">
-                            <i className="fas fa-ban" />
-                          </button>
-                        </div>
-                        <div className="item-list">
-                          <div className="avatar">
-                            <span className="avatar-title rounded-circle border border-white">
-                              CF
-                            </span>
-                          </div>
-                          <div className="info-user ms-3">
-                            <div className="username">Chandra Felix</div>
-                            <div className="status">Sales Promotion</div>
-                          </div>
-                          <button className="btn btn-icon btn-link op-8 me-1">
-                            <i className="far fa-envelope" />
-                          </button>
-                          <button className="btn btn-icon btn-link btn-danger op-8">
-                            <i className="fas fa-ban" />
-                          </button>
-                        </div>
-                        <div className="item-list">
-                          <div className="avatar">
-                            <img
-                              src="assets/img/talha.jpg"
-                              alt="..."
-                              className="avatar-img rounded-circle"
-                            />
-                          </div>
-                          <div className="info-user ms-3">
-                            <div className="username">Talha</div>
-                            <div className="status">Front End Designer</div>
-                          </div>
-                          <button className="btn btn-icon btn-link op-8 me-1">
-                            <i className="far fa-envelope" />
-                          </button>
-                          <button className="btn btn-icon btn-link btn-danger op-8">
-                            <i className="fas fa-ban" />
-                          </button>
-                        </div>
-                        <div className="item-list">
-                          <div className="avatar">
-                            <img
-                              src="assets/img/chadengle.jpg"
-                              alt="..."
-                              className="avatar-img rounded-circle"
-                            />
-                          </div>
-                          <div className="info-user ms-3">
-                            <div className="username">Chad</div>
-                            <div className="status">CEO Zeleaf</div>
-                          </div>
-                          <button className="btn btn-icon btn-link op-8 me-1">
-                            <i className="far fa-envelope" />
-                          </button>
-                          <button className="btn btn-icon btn-link btn-danger op-8">
-                            <i className="fas fa-ban" />
-                          </button>
-                        </div>
-                        <div className="item-list">
-                          <div className="avatar">
-                            <span className="avatar-title rounded-circle border border-white bg-primary">
-                              H
-                            </span>
-                          </div>
-                          <div className="info-user ms-3">
-                            <div className="username">Hizrian</div>
-                            <div className="status">Web Designer</div>
-                          </div>
-                          <button className="btn btn-icon btn-link op-8 me-1">
-                            <i className="far fa-envelope" />
-                          </button>
-                          <button className="btn btn-icon btn-link btn-danger op-8">
-                            <i className="fas fa-ban" />
-                          </button>
-                        </div>
-                        <div className="item-list">
-                          <div className="avatar">
-                            <span className="avatar-title rounded-circle border border-white bg-secondary">
-                              F
-                            </span>
-                          </div>
-                          <div className="info-user ms-3">
-                            <div className="username">Farrah</div>
-                            <div className="status">Marketing</div>
-                          </div>
-                          <button className="btn btn-icon btn-link op-8 me-1">
-                            <i className="far fa-envelope" />
-                          </button>
-                          <button className="btn btn-icon btn-link btn-danger op-8">
-                            <i className="fas fa-ban" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-8">
-                  <div className="card card-round">
-                    <div className="card-header">
-                      <div className="card-head-row card-tools-still-right">
-                        <div className="card-title">Transaction History</div>
-                        <div className="card-tools">
-                          <div className="dropdown">
-                            <button
-                              className="btn btn-icon btn-clean me-0"
-                              type="button"
-                              id="dropdownMenuButton"
-                              data-bs-toggle="dropdown"
-                              aria-haspopup="true"
-                              aria-expanded="false"
-                            >
-                              <i className="fas fa-ellipsis-h" />
-                            </button>
-                            <div
-                              className="dropdown-menu"
-                              aria-labelledby="dropdownMenuButton"
-                            >
-                              <a className="dropdown-item" href="#">
-                                Action
-                              </a>
-                              <a className="dropdown-item" href="#">
-                                Another action
-                              </a>
-                              <a className="dropdown-item" href="#">
-                                Something else here
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="card-body p-0">
-                      <div className="table-responsive">
-                        <table className="table align-items-center mb-0">
-                          <thead className="thead-light">
-                            <tr>
-                              <th scope="col">Payment Number</th>
-                              <th scope="col" className="text-end">
-                                Date &amp; Time
-                              </th>
-                              <th scope="col" className="text-end">
-                                Amount
-                              </th>
-                              <th scope="col" className="text-end">
-                                Status
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <th scope="row">
-                                <button className="btn btn-icon btn-round btn-success btn-sm me-2">
-                                  <i className="fa fa-check" />
-                                </button>
-                                Payment from #10231
-                              </th>
-                              <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                              <td className="text-end">$250.00</td>
-                              <td className="text-end">
-                                <span className="badge badge-success">
-                                  Completed
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row">
-                                <button className="btn btn-icon btn-round btn-success btn-sm me-2">
-                                  <i className="fa fa-check" />
-                                </button>
-                                Payment from #10231
-                              </th>
-                              <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                              <td className="text-end">$250.00</td>
-                              <td className="text-end">
-                                <span className="badge badge-success">
-                                  Completed
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row">
-                                <button className="btn btn-icon btn-round btn-success btn-sm me-2">
-                                  <i className="fa fa-check" />
-                                </button>
-                                Payment from #10231
-                              </th>
-                              <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                              <td className="text-end">$250.00</td>
-                              <td className="text-end">
-                                <span className="badge badge-success">
-                                  Completed
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row">
-                                <button className="btn btn-icon btn-round btn-success btn-sm me-2">
-                                  <i className="fa fa-check" />
-                                </button>
-                                Payment from #10231
-                              </th>
-                              <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                              <td className="text-end">$250.00</td>
-                              <td className="text-end">
-                                <span className="badge badge-success">
-                                  Completed
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row">
-                                <button className="btn btn-icon btn-round btn-success btn-sm me-2">
-                                  <i className="fa fa-check" />
-                                </button>
-                                Payment from #10231
-                              </th>
-                              <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                              <td className="text-end">$250.00</td>
-                              <td className="text-end">
-                                <span className="badge badge-success">
-                                  Completed
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row">
-                                <button className="btn btn-icon btn-round btn-success btn-sm me-2">
-                                  <i className="fa fa-check" />
-                                </button>
-                                Payment from #10231
-                              </th>
-                              <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                              <td className="text-end">$250.00</td>
-                              <td className="text-end">
-                                <span className="badge badge-success">
-                                  Completed
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row">
-                                <button className="btn btn-icon btn-round btn-success btn-sm me-2">
-                                  <i className="fa fa-check" />
-                                </button>
-                                Payment from #10231
-                              </th>
-                              <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                              <td className="text-end">$250.00</td>
-                              <td className="text-end">
-                                <span className="badge badge-success">
-                                  Completed
-                                </span>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
-              {/* <Table /> */}
-
-
-              
+                  {/* Custom Item List */}
+                  <ul style={{ marginTop: "10px", fontSize: "14px", paddingLeft: "15px" }}>
+                    {card.items.map((item, i) => (
+                      <li key={i} style={{ listStyleType: "circle", marginBottom: "5px" }}>{item}</li>
+                    ))}
+                  </ul>
+                </Card>
+              ))}
             </div>
-          </div>
 
-          <Footer />
+            {/* Pie Chart Section */}
+            
+          </div>
         </div>
+        <Footer />
       </div>
-    </>
+    </div>
   );
 };
 

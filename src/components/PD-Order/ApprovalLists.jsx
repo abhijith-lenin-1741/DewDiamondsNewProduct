@@ -5,6 +5,7 @@ import SideBar from "../SideBar";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
+import ApprovalListTable from "./ApprovalListTable";
 
 const ApprovalLists = () => {
   const sideBarState = useSelector(state => state?.sidebar?.sideBar)
@@ -174,28 +175,11 @@ const ApprovalLists = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            <tr>
-                              <td>c-108</td>
-                              <td>10 Feb 2025</td>
-                              <td>Dew Diamonds</td>
-                              <td>Diamond Nosepin</td>
-                              <td>20 Feb 2025</td>
-                              <td>
-                                <select
-                                  value={approvalStatus}
-                                  onChange={(e) =>
-                                    setApprovalStatus(e.target.value)
-                                  }
-                                  className="form-select"
-                                >
-                                  <option value="Approved">Approved</option>
-                                  <option value="Pending">Pending</option>
-                                  <option value="Rejected">Rejected</option>
-                                  <option value="Initiated">Initiated</option>
-                                </select>
-                              </td>
-                              <td>Moved to Sketch</td>
-                            </tr>
+                            <ApprovalListTable />
+                            <ApprovalListTable />
+                            <ApprovalListTable />
+                            <ApprovalListTable />
+
                           </tbody>
                         </table>
                       </div>

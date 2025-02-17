@@ -5,6 +5,7 @@ import {
   changeSubMenu,
   toggleSideBar,
 } from "../reducers/sideBarReducer";
+import { SlDiamond } from "react-icons/sl";
 
 const SideBar = () => {
   const activeLink = useSelector((state) => state?.sidebar?.activeLink);
@@ -17,12 +18,19 @@ const SideBar = () => {
         {/* Logo Header */}
         <div className="logo-header" data-background-color="dark">
           <a href="index.html" className="logo">
-            <img
-              // src="assets/img/kaiadmin/logo_light.svg"
-              alt="navbar brand"
-              className="navbar-brand"
-              height={20}
-            />
+          <SlDiamond style={{
+            width: "24px",
+            height: "24px",
+            color: "white",
+
+          }}/> 
+          <span
+          style={{
+            margin: "0 9px",
+            color: "white",
+            fontSize: "14px"
+          }}
+          >Dew Diamonds</span>
           </a>
           <div className="nav-toggle" onClick={() => dispatch(toggleSideBar())}>
             <button className="btn-toggle">

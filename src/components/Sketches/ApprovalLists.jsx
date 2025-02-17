@@ -176,6 +176,8 @@ const ApprovalLists = () => {
                         </thead>
                         <tbody>
                           <SketchesApprovalTable />
+                          <SketchesApprovalTable />
+                          <SketchesApprovalTable />
                         </tbody>
                       </table>
                     </div>

@@ -68,7 +68,7 @@ const Header = () => {
                   </form>
                 </ul>
               </li>
-              <li className="nav-item topbar-icon dropdown hidden-caret">
+              {/* <li className="nav-item topbar-icon dropdown hidden-caret">
                 <a
                   className="nav-link dropdown-toggle"
                   href="#"
@@ -302,7 +302,7 @@ const Header = () => {
                     </div>
                   </div>
                 </div>
-              </li>
+              </li> */}
               <li className="nav-item topbar-user dropdown hidden-caret">
                 <a
                   className="dropdown-toggle profile-pic"
@@ -319,7 +319,7 @@ const Header = () => {
                   </div>
                   <span className="profile-username">
                     <span className="op-7">Hi,</span>
-                    <span className="fw-bold">Hizrian</span>
+                    <span className="fw-bold">User</span>
                   </span>
                 </a>
                 <ul className="dropdown-menu dropdown-user animated fadeIn">
