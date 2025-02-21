@@ -1,12 +1,12 @@
 import { useState } from "react";
-import Footer from "../Footer";
-import Header from "../Header";
-import SideBar from "../SideBar";
+import Footer from "../../Footer";
+import Header from "../../Header";
+import SideBar from "../../SideBar";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import DesignReportTable from "./DesignReportTable";
 
-const ApprovalLists = () => {
-  const [approvalStatus, setApprovalStatus] = useState("Approved");
+const DesignReports = () => {
   const [filters, setFilters] = useState({
     startDate: "",
     endDate: "",
@@ -31,7 +31,7 @@ const ApprovalLists = () => {
           <div className="container">
             <div className="page-inner">
               <div className="page-header">
-                <h3 className="fw-bold mb-3">Approval Lists</h3>
+                <h3 className="fw-bold mb-3">Design Reports</h3>
                 <ul className="breadcrumbs mb-3">
                   <li className="nav-home">
                     <a href="#">
@@ -42,17 +42,16 @@ const ApprovalLists = () => {
                     <i className="icon-arrow-right"></i>
                   </li>
                   <li className="nav-item">
-                    <a href="#">PD/Concept</a>
+                    <a href="#">Reports</a>
                   </li>
                   <li className="separator">
                     <i className="icon-arrow-right"></i>
                   </li>
                   <li className="nav-item">
-                    <a href="#">Approval Lists</a>
+                    <a href="#">Design Reports</a>
                   </li>
                 </ul>
               </div>
-
               <div className="row">
                 <div className="col-md-12">
                   <div className="card">
@@ -98,50 +97,17 @@ const ApprovalLists = () => {
                           />
                         </div>
 
-                        {/* Status */}
-                        <div className="col-lg-3 col-md-4 col-sm-6 d-flex flex-column">
-                          <label className="filter-labels">
-                            Search by Status
-                          </label>
-                          <select
-                            className="form-control w-100"
-                            name="status"
-                            value={filters.status}
-                            onChange={handleFilterChange}
-                          >
-                            <option value="">All</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Completed">Completed</option>
-                            <option value="In Progress">In Progress</option>
-                          </select>
-                        </div>
-
                         {/* Customer */}
                         <div className="col-lg-3 col-md-4 col-sm-6 d-flex flex-column">
                           <label className="filter-labels">
-                            Search by Customer
+                            Search
                           </label>
                           <input
                             type="text"
                             className="form-control w-100"
                             name="customer"
-                            placeholder="Enter customer name"
+                            placeholder="Search"
                             value={filters.customer}
-                            onChange={handleFilterChange}
-                          />
-                        </div>
-
-                        {/* Sketcher Name */}
-                        <div className="col-lg-3 col-md-4 col-sm-6 d-flex flex-column">
-                          <label className="filter-labels">
-                            Search by Order ID
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control w-100"
-                            name="orderId"
-                            placeholder="Enter order id"
-                            value={filters.orderId}
                             onChange={handleFilterChange}
                           />
                         </div>
@@ -162,38 +128,18 @@ const ApprovalLists = () => {
                         >
                           <thead>
                             <tr>
-                              <th>Concept Id</th>
+                              <th></th> {/* Eye Icon Column */}
                               <th>Date</th>
-                              <th>Customer</th>
-                              <th>Category</th>
-                              <th>Promised Date</th>
-                              <th>Approval</th>
-                              <th>Action</th>
+                              <th>Design</th>
+                              <th>Concept</th>
+                              <th>Sketches</th>
+                              <th>CAD</th>
+                              <th>Sketch Designer</th>
+                              <th>CAD Designer</th>
                             </tr>
                           </thead>
                           <tbody>
-                            <tr>
-                              <td>c-108</td>
-                              <td>10 Feb 2025</td>
-                              <td>Dew Diamonds</td>
-                              <td>Diamond Nosepin</td>
-                              <td>20 Feb 2025</td>
-                              <td>
-                                <select
-                                  value={approvalStatus}
-                                  onChange={(e) =>
-                                    setApprovalStatus(e.target.value)
-                                  }
-                                  className="form-select"
-                                >
-                                  <option value="Approved">Approved</option>
-                                  <option value="Pending">Pending</option>
-                                  <option value="Rejected">Rejected</option>
-                                  <option value="Initiated">Initiated</option>
-                                </select>
-                              </td>
-                              <td>Moved to Sketch</td>
-                            </tr>
+                          <DesignReportTable />
                           </tbody>
                         </table>
                       </div>
@@ -210,4 +156,4 @@ const ApprovalLists = () => {
   );
 };
 
-export default ApprovalLists;
+export default DesignReports;
