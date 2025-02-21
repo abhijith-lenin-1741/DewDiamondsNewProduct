@@ -1,8 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import sideReducer from "../reducers/sideBarReducer"
+import pdReducer from "../reducers/pdListReducer"
 const store = configureStore({
     reducer: {
-        sidebar: sideReducer
+        sidebar: sideReducer,
+        pdLists: pdReducer
     }
 })
 

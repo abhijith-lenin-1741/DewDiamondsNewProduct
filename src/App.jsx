@@ -19,81 +19,110 @@ import DesignBank from "./components/Design/DesignBank/DesignBank";
 import DesignMaster from "./components/Design/DesignMaster/DesignMaster";
 import { Provider } from "react-redux";
 import store from "./store/store";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
+import Login from "./components/Accounts/login";
 
 function App() {
+  const [token, setToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchedToken = Cookies.get("authToken");
+    setToken(fetchedToken);
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newToken = Cookies.get("authToken");
+      setToken(newToken);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const isTokenValid = token && token !== "undefined" && token.trim() !== "";
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <DashBoard />,
+      element: isTokenValid ? <DashBoard /> : <Login />,
     },
     {
       path: "/dataTable",
-      element: <DataTable />,
+      element: isTokenValid ? <DataTable /> : <Login />,
     },
     {
       path: "/createOrder",
-      element: <CreatePdOrder />,
+      element: isTokenValid ? <CreatePdOrder /> : <Login />,
     },
     {
       path: "/approvalLists",
-      element: <ApprovalLists />,
+      element: isTokenValid ? <ApprovalLists /> : <Login />,
     },
     {
       path: "/pdLists",
-      element: <PdLists />,
+      element: isTokenValid ? <PdLists /> : <Login />,
     },
     {
       path: "/sketchList",
-      element: <SketchList />,
+      element: isTokenValid ? <SketchList /> : <Login />,
     },
     {
       path: "/sketchApproval",
-      element: <SketchApproval />,
+      element: isTokenValid ? <SketchApproval /> : <Login />,
     },
     {
       path: "/sketchGridView",
-      element: <SketchGridView />,
+      element: isTokenValid ? <SketchGridView /> : <Login />,
     },
     {
       path: "/designReports",
-      element: <DesignReports />,
+      element: isTokenValid ? <DesignReports /> : <Login />,
     },
     {
       path: "/designerReports",
-      element: <DesignerReports />,
+      element: isTokenValid ? <DesignerReports /> : <Login />,
     },
     {
       path: "/sentToCustomer",
-      element: <SentToCustomer />,
+      element: isTokenValid ? <SentToCustomer /> : <Login />,
     },
     {
       path: "/dewAlbum",
-      element: <DewAlbums />,
+      element: isTokenValid ? <DewAlbums /> : <Login />,
     },
     {
       path: "dewAlbum/:id",
-      element: <DewAlbumDetail />,
+      element: isTokenValid ? <DewAlbumDetail /> : <Login />,
     },
     {
       path: "/addEmployee",
-      element: <AddEmployee />,
+      element: isTokenValid ? <AddEmployee /> : <Login />,
     },
     {
       path: "/employeeLists",
-      element: <EmployeeList />,
+      element: isTokenValid ? <EmployeeList /> : <Login />,
     },
     {
       path: "/designBank",
-      element: <DesignBank />,
+      element: isTokenValid ? <DesignBank /> : <Login />,
     },
     {
       path: "/designMaster",
-      element: <DesignMaster />,
+      element: isTokenValid ? <DesignMaster /> : <Login />,
     },
   ]);
+
   return (
     <Provider store={store}>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
     </Provider>
   );
 }

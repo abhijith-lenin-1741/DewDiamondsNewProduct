@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { FaEllipsisV, FaEye } from "react-icons/fa";
 
-const PdTableData = () => {
+const PdTableData = ({data}) => {
   const [toggle, setToggle] = useState(false);
+
+  const customerName = data["Customer.customer_first_name"];
   return (
     <tr>
       <td>
         <FaEye className="text-primary" />
       </td>
-      <td>10 Feb 2025</td>
-      <td>sk-140</td>
-      <td>Dew Diamonds</td>
-      <td>10 Feb 2025</td>
-      <td>Approved</td>
+      <td>{data?.orderDate}</td>
+      <td>{data?.orderNo}</td>
+      <td>{customerName}</td>
+      <td>{data?.promiseDate}</td>
+      <td>{data?.status}</td>
       <td>sk-142</td>
       <td>5</td>
       <td>1</td>

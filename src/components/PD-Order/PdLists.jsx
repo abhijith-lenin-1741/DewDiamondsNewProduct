@@ -1,13 +1,17 @@
 import Footer from "../Footer";
 import Header from "../Header";
 import SideBar from "../SideBar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PdTableData from "./PdTableData";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getPdLists } from "./services";
 const PdLists = () => {
-  const sideBarState = useSelector(state => state?.sidebar?.sideBar)
+  const dispatch = useDispatch();
+  const filtererdData = useSelector((state) => state?.pdLists?.filteredPdLists);
+
+  const sideBarState = useSelector((state) => state?.sidebar?.sideBar);
   const [showEdit, setShowEdit] = useState(null);
   const [filters, setFilters] = useState({
     startDate: "",
@@ -18,11 +22,23 @@ const PdLists = () => {
   });
 
   const handleFilterChange = (e) => {
-    debugger;
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
-  console.log("filters", filters);
+  useEffect(() => {
+    getPdLists(dispatch);
+  }, []);
+  console.log("filtererdData",filters);
+
+  const handleFilter = () => {
+    if(filters?.customer){
+      
+    }
+  }
+
+  useEffect(() => {
+    handleFilter()
+  },[filters])
   return (
     <>
       <div className={`wrapper ${sideBarState ? "sidebar_minimize" : ""}`}>
@@ -179,12 +195,9 @@ const PdLists = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            <PdTableData />
-                            <PdTableData />
-                            <PdTableData />
-                            <PdTableData />
-                            <PdTableData />
-
+                            {filtererdData?.map((item) => {
+                              return <PdTableData key={item?.id} data={item}/>;
+                            })}
                           </tbody>
                         </table>
                       </div>
