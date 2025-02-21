@@ -14,7 +14,7 @@ function SkitchList() {
   const [editData, setEditData] = useState(null);
   const navigate = useNavigate();
 
-  const API_URL = "http://localhost:5000/api/v1/sketch";
+  const API_URL =  window.url+"sketch";
 
   useEffect(() => {
     const savedToken = Cookies.get("authToken");

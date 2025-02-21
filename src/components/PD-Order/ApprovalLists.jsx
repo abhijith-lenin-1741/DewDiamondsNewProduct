@@ -1,213 +1,209 @@
-import { useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from "react-router";
+import axios from 'axios';
+
 import Footer from "../Footer";
 import Header from "../Header";
 import SideBar from "../SideBar";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import Cookies from 'js-cookie';
+import {
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
 
 const ApprovalLists = () => {
-  const [approvalStatus, setApprovalStatus] = useState("Approved");
-  const [filters, setFilters] = useState({
-    startDate: "",
-    endDate: "",
-    status: "",
-    customer: "",
-    orderId: "",
-  });
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
+  const [filteredRows, setFilteredRows] = useState([]);
+  const navigate = useNavigate();
 
-  const handleFilterChange = (e) => {
-    debugger;
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+  // Filters State
+  const [promiseStartDate, setPromiseStartDate] = useState("");
+  const [promiseEndDate, setPromiseEndDate] = useState("");
+  const [completedStartDate, setCompletedStartDate] = useState("");
+  const [completedEndDate, setCompletedEndDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  // Check if window.url is defined
+  if (!window.url) {
+    console.error("window.url is not defined. Make sure it's set globally.");
+  }
+
+  const API_URL = window.url ? window.url + "order/getAllOrders" : "";
+
+  const handleApprovalChange = async (id, value) => {
+    try {
+      const response = await axios.put(
+        `${window.url}order/updateOrderStatus`,
+        { orderId: id, status: value },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Update Response:", response.data);
+      setRows((prevRows) =>
+        prevRows.map((row) =>
+          row.id === id ? { ...row, status: value } : row
+        )
+      );
+    } catch (error) {
+      console.error("Error updating order status:", error.response?.data || error.message);
+    }
   };
+
+  const handleMoveToSkitch = async (id) => {
+    try {
+      const apiUrl = `${window.url}order/sketchStatus`;
+      console.log("Sending request to:", apiUrl);
+      console.log("Request Payload:", { orderId: id });
+
+      const response = await axios.put(
+        apiUrl,
+        JSON.stringify({ orderId: id }),
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("authToken")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Move to Sketch Response:", response.data);
+    } catch (error) {
+      console.error("Error moving to Sketch:", error.response?.data || error.message);
+    }
+  };
+
+  useEffect(() => {
+    const savedToken = Cookies.get("authToken");
+    if (!savedToken) {
+      navigate("/");
+      return;
+    }
+
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.post(API_URL, {}, {
+          headers: {
+            Authorization: `Bearer ${savedToken}`,
+          },
+        });
+
+        const orders = response.data.data || [];
+        setRows(orders);
+      } catch (err) {
+        setError("Failed to fetch Order data.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [navigate]);
+
+  useEffect(() => {
+    let updatedRows = rows;
+    if (promiseStartDate && promiseEndDate) {
+      updatedRows = updatedRows.filter(row => row.promiseDate >= promiseStartDate && row.promiseDate <= promiseEndDate);
+    }
+    if (completedStartDate && completedEndDate) {
+      updatedRows = updatedRows.filter(row => row.cadCompletedDate >= completedStartDate && row.cadCompletedDate <= completedEndDate);
+    }
+    if (statusFilter) {
+      updatedRows = updatedRows.filter(row => row.status === statusFilter);
+    }
+    setFilteredRows(updatedRows);
+  }, [promiseStartDate, promiseEndDate, completedStartDate, completedEndDate, statusFilter, rows]);
+
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredRows.slice(indexOfFirstRow, indexOfLastRow);
+  const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
-    <>
-      <div className="wrapper">
-        {/* Sidebar */}
-        <SideBar />
-        {/* End Sidebar */}
-        <div className="main-panel">
-          <Header />
-          <div className="container">
-            <div className="page-inner">
-              <div className="page-header">
-                <h3 className="fw-bold mb-3">Approval Lists</h3>
-                <ul className="breadcrumbs mb-3">
-                  <li className="nav-home">
-                    <a href="#">
-                      <i className="icon-home"></i>
-                    </a>
-                  </li>
-                  <li className="separator">
-                    <i className="icon-arrow-right"></i>
-                  </li>
-                  <li className="nav-item">
-                    <a href="#">PD/Concept</a>
-                  </li>
-                  <li className="separator">
-                    <i className="icon-arrow-right"></i>
-                  </li>
-                  <li className="nav-item">
-                    <a href="#">Approval Lists</a>
-                  </li>
-                </ul>
-              </div>
+    <div className="wrapper">
+      <SideBar pageName="userrolePermissions" />
+      <div className="main-panel">
+        <Header />
+        <div className="container">
+          <div className="page-inner">
+            <h3 className="fw-bold mb-3">PD Approval List</h3>
 
-              <div className="row">
-                <div className="col-md-12">
-                  <div className="card">
-                    <div className="card-body filter-section">
-                      <div className="row g-3 align-items-end">
-                        {/* Start Date */}
-                        <div className="col-lg-3 col-md-4 col-sm-6 d-flex flex-column">
-                          <label className="filter-labels">Start Date</label>
-                          <DatePicker
-                            selected={
-                              filters.startDate && new Date(filters.startDate)
-                            }
-                            onChange={(date) =>
-                              setFilters({
-                                ...filters,
-                                startDate:
-                                  date?.toISOString().split("T")[0] || "",
-                              })
-                            }
-                            className="form-control w-100"
-                            placeholderText="Select Start Date"
-                            dateFormat="yyyy-MM-dd"
-                          />
-                        </div>
-
-                        {/* End Date */}
-                        <div className="col-lg-3 col-md-4 col-sm-6 d-flex flex-column">
-                          <label className="filter-labels">End Date</label>
-                          <DatePicker
-                            selected={
-                              filters.endDate && new Date(filters.endDate)
-                            }
-                            onChange={(date) =>
-                              setFilters({
-                                ...filters,
-                                endDate:
-                                  date?.toISOString().split("T")[0] || "",
-                              })
-                            }
-                            className="form-control w-100"
-                            placeholderText="Select End Date"
-                            dateFormat="yyyy-MM-dd"
-                          />
-                        </div>
-
-                        {/* Status */}
-                        <div className="col-lg-3 col-md-4 col-sm-6 d-flex flex-column">
-                          <label className="filter-labels">
-                            Search by Status
-                          </label>
+            {loading ? (
+              <p>Loading orders...</p>
+            ) : error ? (
+              <p style={{ color: 'red' }}>{error}</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="display table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th style={{whiteSpace:"nowrap"}}>Concept ID</th>
+                      <th style={{whiteSpace:"nowrap"}}>Customer Name</th>
+                      <th style={{whiteSpace:"nowrap"}}>Order Date</th>
+                      <th>Category</th>
+                      <th style={{whiteSpace:"nowrap"}}>Promise Date</th>
+                      <th>Status</th>
+                      <th style={{whiteSpace:"nowrap"}}>Order Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentRows.map((row) => (
+                      <tr key={row.id}>
+                        <td>{row.id}</td>
+                        <td>{row.orderNo}</td>
+                        <td>{row.customerName}</td>
+                        <td>{row.orderDate}</td>
+                        <td>{row.categoryName}</td>
+                        <td>{row.promiseDate}</td>
+                        <td>{row.status}</td>
+                        <td>{row.orderStatus}</td>
+                        <td style={{ whiteSpace: "nowrap", minWidth: "150px", display: "flex", alignItems: "center", gap: "10px" }}>
                           <select
-                            className="form-control w-100"
-                            name="status"
-                            value={filters.status}
-                            onChange={handleFilterChange}
+                            value={row.status}
+                            onChange={(e) => handleApprovalChange(row.id, e.target.value)}
+                            className="form-select"
+                            disabled={row.status === "Approved"}
+                            style={{ minWidth: "120px" }}
                           >
-                            <option value="">All</option>
+                            <option value="Approved">Approved</option>
                             <option value="Pending">Pending</option>
-                            <option value="Completed">Completed</option>
-                            <option value="In Progress">In Progress</option>
+                            <option value="Rejected">Rejected</option>
                           </select>
-                        </div>
+                          <button 
+                            onClick={() => handleMoveToSkitch(row.id)} 
+                            disabled={row.orderStatus === "Sketch" || row.status !== "Approved"} 
+                            className={`btn btn-sm ${row.orderStatus === "Sketch" ? "btn-secondary" : row.status === "Approved" ? "btn-success" : "btn-secondary"}`}
+                            style={{ minWidth: "130px" }}
+                          >
+                            {row.orderStatus === "Sketch" ? "Moved to Sketch" : "Move to Sketch"}
+                          </button>
+                        </td>
 
-                        {/* Customer */}
-                        <div className="col-lg-3 col-md-4 col-sm-6 d-flex flex-column">
-                          <label className="filter-labels">
-                            Search by Customer
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control w-100"
-                            name="customer"
-                            placeholder="Enter customer name"
-                            value={filters.customer}
-                            onChange={handleFilterChange}
-                          />
-                        </div>
-
-                        {/* Sketcher Name */}
-                        <div className="col-lg-3 col-md-4 col-sm-6 d-flex flex-column">
-                          <label className="filter-labels">
-                            Search by Order ID
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control w-100"
-                            name="orderId"
-                            placeholder="Enter order id"
-                            value={filters.orderId}
-                            onChange={handleFilterChange}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+            )}
 
-              <div className="row">
-                <div className="col-md-12">
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="table-responsive">
-                        <table
-                          id="basic-datatables"
-                          className="display table table-striped table-hover"
-                        >
-                          <thead>
-                            <tr>
-                              <th>Concept Id</th>
-                              <th>Date</th>
-                              <th>Customer</th>
-                              <th>Category</th>
-                              <th>Promised Date</th>
-                              <th>Approval</th>
-                              <th>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>c-108</td>
-                              <td>10 Feb 2025</td>
-                              <td>Dew Diamonds</td>
-                              <td>Diamond Nosepin</td>
-                              <td>20 Feb 2025</td>
-                              <td>
-                                <select
-                                  value={approvalStatus}
-                                  onChange={(e) =>
-                                    setApprovalStatus(e.target.value)
-                                  }
-                                  className="form-select"
-                                >
-                                  <option value="Approved">Approved</option>
-                                  <option value="Pending">Pending</option>
-                                  <option value="Rejected">Rejected</option>
-                                  <option value="Initiated">Initiated</option>
-                                </select>
-                              </td>
-                              <td>Moved to Sketch</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Footer />
           </div>
-          <Footer />
         </div>
       </div>
-    </>
+    </div>
   );
-};
+}
 
 export default ApprovalLists;

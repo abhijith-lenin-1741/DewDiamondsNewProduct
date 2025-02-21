@@ -20,8 +20,9 @@ function EditCad() {
     const [cadCompletedDate, setCadCompletedDate] = useState("");
     const [promiseDate, setPromiseDate] = useState("");
     const [specialInstruction, setSpecialInstruction] = useState("");
+    // const [specialInstruction, setSpecialInstruction] = useState("");
 
-    const API_URL = `http://localhost:5000/api/v1/cad/getCadById/${customerId}`;
+    const API_URL =  window.url+`cad/getCadById/${customerId}`;
 
     useEffect(() => {
         
@@ -73,7 +74,7 @@ function EditCad() {
             }
 
             const response = await axios.put(
-                `http://localhost:5000/api/v1/cad/updateCad/${customerId}`,
+                 window.url+`cad/updateCad/${customerId}`,
                 {
                     cadNo,
                     orderId,
@@ -103,6 +104,10 @@ function EditCad() {
             }
         }
     };
+    const handleMaterialtab = (customerId) => {
+      // Implement your edit logic here
+      navigate(`/cad_edit/${customerId}`);
+    };
 
   return (
     <div className="wrapper">
@@ -115,24 +120,30 @@ function EditCad() {
         <div className="container">
           <div className="page-inner">
             <div className="page-header">
-              <h3 className="fw-bold mb-3">CAD Edit</h3>
+              {/* <h3 className="fw-bold mb-3">CAD Edit</h3> */}
               <ul className="breadcrumbs mb-3">
                 <li className="separator">
                   <i className="icon-arrow-right"></i>
                 </li>
                 <li className="nav-item">
-                  <a>PD/Concept</a>
+                  <a>Upload Image</a>
                 </li>
                 <li className="separator">
                   <i className="icon-arrow-right"></i>
                 </li>
                 <li className="nav-item">
-                  <a href="#">Create Order</a>
+                  {/* <a href="/cad_metal">Metal & Material</a> */}
+                  <a href={`/cad_metal/${customerId}`}>Metal & Material</a>
                 </li>
               </ul>
             </div>
 
             {/* Order Form */}
+            <div className="card">
+            <div className="card-header  text-white">
+            <center><h5 style={{color:"black"}}>Cad Edit</h5></center>  
+            </div>
+            <div className="card-body">
             <div className="row">
               {/* Customer Selection */}
               <div className="col-md-6">
@@ -153,7 +164,7 @@ function EditCad() {
               {/* Email Input */}
               <div className="col-md-6">
                 <div className="form-group">
-                  <label htmlFor="emailInput">OrderId</label>
+                  <label htmlFor="emailInput">Concept ID</label>
                   <input
                     disabled
                     type="text"
@@ -247,6 +258,8 @@ function EditCad() {
               <button className="btn btn-danger">Cancel</button>
               </center>
             
+            </div>
+            </div>
             </div>
           </div>
         </div>

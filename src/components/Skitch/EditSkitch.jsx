@@ -30,7 +30,7 @@ const[orderId,setorderId]=useState("")
   const currentStep = `/edit/${id}`;
 
   
-  const API_URL =`http://localhost:5000/api/v1/sketch/getSketch/${id}`
+  const API_URL = window.url+`sketch/getSketch/${id}`
 useEffect(() => {
     const savedToken = Cookies.get("authToken");
 
@@ -93,7 +93,7 @@ useEffect(() => {
         }
 
         const response = await axios.put(
-            `http://localhost:5000/api/v1/sketch/editSketch/${id}`, // Use PUT for updating
+             window.url+`sketch/editSketch/${id}`, // Use PUT for updating
             {
               orderId:orderId,
               sketchNo:sketchNo,

@@ -30,7 +30,7 @@ const UserLogin = () => {
   
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/v1/auth/login",
+        window.url+"/auth/login",
         { email: username, password }
       );
   
@@ -44,7 +44,7 @@ const UserLogin = () => {
         const savedToken = Cookies.get("authToken");
   
         // Alert the token
-        alert(`Saved Token: ${savedToken}`);
+        // alert(`Saved Token: ${savedToken}`);
   
         navigate("/dashboard");
       } else if (response.status === 403) {

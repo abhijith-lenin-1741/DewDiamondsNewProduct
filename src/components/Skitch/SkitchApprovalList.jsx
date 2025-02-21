@@ -13,7 +13,7 @@ function SkitchApprovalList() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const API_URL = "http://localhost:5000/api/v1/sketch";
+  const API_URL =  window.url+"sketch";
 
   useEffect(() => {
     const savedToken = Cookies.get("authToken");
@@ -43,7 +43,7 @@ function SkitchApprovalList() {
   const handleApprovalChange = async (id, value) => {
     try {
       const response = await axios.put(
-        "http://localhost:5000/api/v1/sketch/updateSketchStatus",
+         window.url+"sketch/updateSketchStatus",
         {
           sketchId: id,
           status: value,
@@ -70,7 +70,7 @@ function SkitchApprovalList() {
   const handleMoveToSkitch = async (id) => {
     try {
       const response = await axios.put(
-        "http://localhost:5000/api/v1/sketch/moveToCad",
+         window.url+"sketch/moveToCad",
         { sketchId: id },
         {
           headers: {
@@ -137,7 +137,7 @@ function SkitchApprovalList() {
                                     <option value="Approved">Approved</option>
                                     <option value="Pending">Pending</option>
                                     <option value="Rejected">Rejected</option>
-                                    <option value="Initiated">Initiated</option>
+                                   
                                   </select>
                                 </td>
                                 <td>
@@ -146,7 +146,7 @@ function SkitchApprovalList() {
                                     disabled={row.sketchStatus === "cad" || row.status !== "Approved"} 
                                     className={`btn btn-sm ${row.sketchStatus === "cad" ? "btn-secondary" : row.status === "Approved" ? "btn-success" : "btn-secondary"}`}
                                   >
-                                    {row.sketchStatus === "cad" ? "Moved to CAD" : "Move to Sketch"}
+                                    {row.sketchStatus === "cad" ? "Moved to CAD" : "Move to Cad"}
                                   </button>
                                 </td>
 

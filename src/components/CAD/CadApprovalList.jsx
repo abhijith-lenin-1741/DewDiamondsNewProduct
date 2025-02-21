@@ -1,75 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import axios from 'axios';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import axios from "axios";
+import Cookies from "js-cookie";
+
 import Footer from "../Footer";
 import Header from "../Header";
 import SideBar from "../SideBar";
-import Cookies from 'js-cookie';
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+
 
 function CadApprovalList() {
-    const API_URL = "http://localhost:5000/api/v1/cad/getAllCads";
-    const [rows, setRows] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const navigate = useNavigate();
+  const API_URL = window.url + "cad/getAllCads";
+  const getDesignername_Url = window.url+"auth/getUsersByRoleType";
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null); // Declare imagePreview state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [designerName, setDesignerName] = useState("");
+  const [designerEmail, setDesignerEmail] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [approvedForDew, setApprovedForDew] = useState(false);
+  const [approvedForCustomer, setApprovedForCustomer] = useState(false);
+  const [image, setImage] = useState(null);
 
-    const handleApprovalChange = async (id, value) => {
-        try {
-          const response = await axios.put(
-            "http://localhost:5000/api/v1/cad/updateCadStatus",
-            {
-              cadId: id,
-              status: value,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${Cookies.get("authToken")}`,
-              },
-            }
-          );
-      
-          console.log(response.data); // Log response from server
-      
-          setRows((prevRows) =>
-            prevRows.map((row) =>
-              row.id === id ? { ...row, status: value } : row
-            )
-          );
-        } catch (error) {
-          console.error("Error updating order status:", error);
-        }
-      };
-    
-      const handleMoveToSkitch = async (id) => {
-        try {
-          const response = await axios.put(
-            "http://localhost:5000/api/v1/cad/moveToRender",
-            { cadId: id ,
-              isRender:true
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${Cookies.get("authToken")}`,
-              },
-            }
-          );
-          console.log(response.data); // Log response from server
-          setRows((prevRows) =>
-            prevRows.map((row) =>
-              row.id === id ? { ...row, isRender: true } : row // Update the sketchStatus to 'cad' after moving
-            )
-          );
-        } catch (error) {
-          console.error("Error moving to Render:", error);
-        }
-      };
-    
+  const[designer_name_array,setDesigner_name_array]=useState([])
 
-    useEffect(() => {
+  const [selectedRowId, setSelectedRowId] = useState(null);
+  const [tasksavedId, setTasksavedId] = useState(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
     const savedToken = Cookies.get("authToken");
     if (!savedToken) {
-      navigate("/"); // Redirect if no auth token
+      navigate("/");
       return;
     }
 
@@ -80,13 +49,9 @@ function CadApprovalList() {
             Authorization: `Bearer ${Cookies.get("authToken")}`,
           },
         });
-    
-        console.log("API Response:", response.data); // Debug API Response
-    
-        const orders = response.data.data || [];
-        
-    
-        setRows(orders);
+
+        console.log("API Response:", response.data);
+        setRows(response.data.data || []);
       } catch (err) {
         setError(`Failed to fetch Order data: ${err.message}`);
         console.error("API Fetch Error:", err);
@@ -94,35 +59,259 @@ function CadApprovalList() {
         setLoading(false);
       }
     };
-    
+
+    const getDesigner_Data = async () => {
+     
+      try {
+        const requestData = { type: "productDevelopment" };
+        const response = await axios.post(getDesignername_Url, requestData, {
+            headers: {
+                Authorization: `Bearer ${savedToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+        setDesigner_name_array(response.data.data || []);
+        // console.log(materialType_array);
+       
+      } catch (err) {
+        console.error(`Failed to fetch setting types: ${err.message}`);
+      }
+    };
 
     fetchOrders();
+    getDesigner_Data();
   }, [navigate]);
 
-  const handleSaveEdit = async () => {
+  const handleApprovalChange = async (id, value) => {
     try {
-      await axios.put(`${API_URL}/updateSketch`, editData, {
-        headers: { Authorization: `Bearer ${Cookies.get("authToken")}` },
-      });
-      setRows(rows.map(row => (row.id === editData.id ? editData : row)));
-      setEditData(null);
+      const response = await axios.put(
+        window.url+"cad/updateCadStatus",
+        {
+          cadId: id,
+          status: value,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("authToken")}`,
+          },
+        }
+      );
+
+      console.log(response.data); // Log response from server
+
+      setRows((prevRows) =>
+        prevRows.map((row) =>
+          row.id === id ? { ...row, status: value } : row
+        )
+      );
     } catch (error) {
-      console.error("Error updating sketch:", error);
+      console.error("Error updating order status:", error);
     }
   };
 
-  // Handle Delete
-  const handleDelete = async (id) => {
+  const handleMoveToRender = async (id) => {
     try {
-      await axios.delete(`${API_URL}/deleteSketch/${id}`, {
-        headers: { Authorization: `Bearer ${Cookies.get("authToken")}` },
-      });
-      setRows(rows.filter(row => row.id !== id));
+      const response = await axios.put(
+        window.url+"cad/moveToRender",
+        {
+          cadId: id,
+          isRender: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("authToken")}`,
+          },
+        }
+      );
+      console.log(response.data);
+
+      setRows((prevRows) =>
+        prevRows.map((row) =>
+          row.id === id ? { ...row, isRender: true } : row
+        )
+      );
     } catch (error) {
-      console.error("Error deleting sketch:", error);
+      console.error("Error moving to Render:", error);
     }
   };
 
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = rows.slice(indexOfFirstRow, indexOfLastRow);
+  const totalPages = Math.ceil(rows.length / rowsPerPage);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleAddDesignerClick = (rowId) => {
+    setSelectedRowId(rowId);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setDesignerName("");
+    setDesignerEmail("");
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];;
+    setImage(file)
+  };
+  // const handleSubmit = async (id) => {
+  //   try {
+  //     const response = await axios.put(
+  //       window.url+"cad/addCadDesigner",
+  //       {
+  //         id:id,
+  //     empId: designerName,
+  //     startDate: new Date(startDate).toISOString().split("T")[0], // Convert to "YYYY-MM-DD"
+  //     endDate: new Date(endDate).toISOString().split("T")[0], // Convert to "YYYY-MM-DD"
+  //     type: "cad"
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${Cookies.get("authToken")}`,
+  //         },
+  //       }
+  //     );
+  //     console.log(response.data);
+
+  //     // setRows((prevRows) =>
+  //     //   prevRows.map((row) =>
+  //     //     row.id === id ? { ...row, isRender: true } : row
+  //     //   )
+  //     // );
+  //   } catch (error) {
+  //     console.error("Error moving to Render:", error);
+  //     alert(
+  //             "Error: " +
+  //               (error.response ? JSON.stringify(error.response.data) : error.message)
+  //           );
+  //   }
+  // };
+  const handleSubmit = async (e) => {
+    
+    e.preventDefault();
+  
+    const savedToken = Cookies.get("authToken");
+  
+    // Ensure token exists before making the request
+    if (!savedToken) {
+      alert("Authentication token not found. Please log in.");
+      return;
+    }
+  
+    // Ensure required values are provided
+    if (!designerName || !startDate || !endDate) {
+      alert("Please fill all required fields.");
+      return;
+    }
+  
+    // Create the data object with properly formatted fields
+    const dataToSend = {
+      id:selectedRowId,
+      empId: designerName,
+      startDate: new Date(startDate).toISOString().split("T")[0], // Convert to "YYYY-MM-DD"
+      endDate: new Date(endDate).toISOString().split("T")[0], // Convert to "YYYY-MM-DD"
+      type: "cad"
+    };
+  
+    console.log("Sending data:", dataToSend); // Debugging log
+  
+    try {
+      const response = await axios.put(
+        window.url + "cad/addCadDesigner",
+        dataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${savedToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      alert("Cad Designer Input Form Created: " + JSON.stringify(response.data));
+      const tasks = response.data.tasks[0];
+      alert("tasks",tasks)
+
+      if (response.data && response.data.tasks && Array.isArray(response.data.tasks)) {
+       
+        alert(response.data.tasks[0].id)
+      } else {
+        console.error("Unexpected API response format:", response.data);
+        setError("Invalid API response format.");
+      }
+     
+
+    // Redirect after saving
+    navigate("/cad_approval_list");
+  } catch (error) {
+    console.error(
+      "Error creating Cad Designer:",
+      error.response ? error.response.data : error.message
+    );
+    alert(
+      "Error: " +
+        (error.response ? JSON.stringify(error.response.data) : error.message)
+    );
+  }
+};
+  
+  const handleImageUpload = async (e) => {
+   
+    e.preventDefault();
+   
+    const savedToken = Cookies.get("authToken");
+
+    // Create the data object with the necessary fields (e.g., id)
+  const formData = new FormData();
+  // alert(parseInt(tasksavedId))
+  formData.append("images", image);
+
+  formData.append("taskId", parseInt(tasksavedId));
+
+  
+
+    try {
+      alert("image processs")
+      alert(tasksavedId)
+      const response = await axios.post(
+        window.url + "tasks/uploadImage",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Correct header for file upload
+            Authorization: `Bearer ${savedToken}`,
+          },
+        }
+      );
+
+      alert("Cad Image Saved: " + JSON.stringify(response.data));
+      navigate("/cad_approval_list");
+    } catch (error) {
+      console.error(
+        "Error creating Cad Image:",
+        error.response ? error.response.data : error.message
+      );
+      alert(
+        "Error: " +
+          (error.response ? JSON.stringify(error.response.data) : error.message)
+      );
+    }
+  };
+
+
+  const handleFormAndImageUpload = async (e) => {
+    // First, handle the form submission
+    await handleSubmit(e);
+  
+    // After form submission completes, handle the image upload
+    await handleImageUpload(e);
+  };
+
+  const ViewDesignerButton = (orderId) => {
+    // Implement your edit logic here
+    navigate(`/cad_designer/${orderId}`);
+};
   return (
     <div className="wrapper">
       <SideBar pageName="userrolePermissions" />
@@ -131,7 +320,9 @@ function CadApprovalList() {
         <div className="container">
           <div className="page-inner">
             <div className="page-header">
-              <h3 className="fw-bold mb-3">CAD Approval List</h3>
+              <h3 className="fw-bold mb-3" style={{ wordWrap: "break-word" }}>
+                CAD Approval List
+              </h3>
             </div>
             <div className="row">
               <div className="col-md-12">
@@ -140,72 +331,367 @@ function CadApprovalList() {
                     {loading ? (
                       <p>Loading orders...</p>
                     ) : error ? (
-                      <p style={{ color: 'red' }}>{error}</p>
+                      <p style={{ color: "red" }}>{error}</p>
                     ) : (
                       <div className="table-responsive">
                         <table className="display table table-striped table-hover">
                           <thead>
                             <tr>
-                            <th>ID</th>
-                              <th>Cad ID</th>
-                              <th>Concept ID</th>
-
-                              <th>Req.Cad Count
-                              	</th>
-                                  <th>Image
-                              	</th>
-                              
-                              <th>Promise Date</th>
+                              <th>ID</th>
+                              <th style={{ whiteSpace: "nowrap" }}>Cad ID</th>
+                              <th style={{ whiteSpace: "nowrap" }}>Concept ID</th>
+                              <th style={{ whiteSpace: "nowrap" }}>Req. Cad Count</th>
+                              <th>Image</th>
+                              <th style={{ whiteSpace: "nowrap" }}>Promise Date</th>
                               <th>Status</th>
-                              <th>Actions</th>
+                              <th style={{ whiteSpace: "nowrap" }}>Actions</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {rows.map((row) => (
+                            {currentRows.map((row) => (
                               <tr key={row.id}>
-                                 <td>{row.id}</td>
+                                <td>{row.id}</td>
                                 <td>{row.cadNo}</td>
                                 <td>{row.orderId}</td>
                                 <td>{row.reqCadCount}</td>
                                 <td>"null"</td>
                                 <td>{row.promiseDate}</td>
                                 <td>{row.status}</td>
-                               
                                 <td>
+                                <select
+                                  value={row.status}
+                                  onChange={(e) => handleApprovalChange(row.id, e.target.value)}
+                                  className="form-select"
+                                  style={{ width: "150px" }} // Increased width for select box
+                                  disabled={row.status === "Approved" || row.status === "Rejected"}
+                                >
+                                  <option value="Approved">Approved</option>
+                                  <option value="Pending">Pending</option>
+                                  <option value="Rejected">Rejected</option>
+                                </select>
+                              </td>
                                 <td>
-                                  <select
-                                    value={row.status}
-                                    onChange={(e) => handleApprovalChange(row.id, e.target.value)}
-                                    className="form-select"
-                                    disabled={row.status === "Approved"}
-                                  >
-                                    <option value="Approved">Approved</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Rejected">Rejected</option>
-                                    <option value="Initiated">Initiated</option>
-                                  </select>
+                                  <div>
+                                    <button 
+                                     onClick={() => handleAddDesignerClick(row.id)}
+                                      className="btn btn-primary" 
+                                      style={{ width: "150px" }} // Increased width
+                                    >
+                                      Add Designer
+                                    </button>
+
+                                    {isModalOpen && (
+  <div className="custom-modal-overlay">
+    <div className="custom-modal">
+      <div className="modal-header">
+        <h5>Add Designer</h5>
+        <button className="close-btn" onClick={handleCloseModal}>
+          ×
+        </button>
+      </div>
+      <form onSubmit={handleFormAndImageUpload}>
+        <div className="modal-body">
+          
+          <div className="row">
+           
+            <div className="col-md-6">
+              <div className="form-group">
+                <label>Designer Name</label>
+                <select
+                        className="form-select pd-select"
+                        id="settingType"
+                        value={designerName}
+                       
+                          // onChange={(e) => setMeterialType(e.target.value)}
+                          onChange={(e) => {
+                            console.log("Selected Value:", e.target.value); // Debugging
+                            // alert(Make_Type)
+                             
+                            setDesignerName(e.target.value);
+                          }}
+                      >
+                        <option value="" style={{ color: '#000' }}>Select</option>
+                        {designer_name_array.map((type) => (
+                          <option key={type.id} value={type.id}>
+                            {type.name}
+                          </option>
+                        ))}
+                      </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-md-6">
+              <div className="form-group">
+                <label>Start Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <div className="col-md-6">
+              <div className="form-group">
+                <label>End Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+          {/* <div className="row">
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>Upload Image</label>
+                    
+                      <input
+                      type="file"
+                      accept="image/*" 
+                      onChange={handleFileChange} 
+                    />
+                    
+                      {imagePreview && (
+                        <div className="image-preview-container" onClick={handleImageClick}>
+                          <img
+                            src={imagePreview}
+                            alt="Selected Image"
+                            className="image-preview"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div> */}
+             
+             
+
+          <div className="row">
+            <div className="col-md-6">
+              
+              <input
+                type="checkbox"
+                checked={approvedForDew}
+                onChange={(e) => setApprovedForDew(e.target.checked)}
+                className="custom-checkbox"
+              />&nbsp;&nbsp;&nbsp;
+              <label>Approved for Dew</label>
+            </div>
+            <div className="col-md-6">
+             
+              <input
+                type="checkbox"
+                checked={approvedForCustomer}
+                onChange={(e) => setApprovedForCustomer(e.target.checked)}
+                className="custom-checkbox"
+              />&nbsp;&nbsp;&nbsp;
+               <label>Approved for Customer</label>
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button type="submit" className="btn btn-success">
+            Submit
+          </button>&nbsp;&nbsp;&nbsp;
+          <button type="button" className="btn btn-danger" onClick={handleCloseModal}>
+            Close
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+<style jsx>{`
+        .custom-modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+        }
+        .custom-modal {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          width: 600px;
+          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .close-btn {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+        }
+        .modal-body {
+          margin-top: 15px;
+        }
+        .form-row {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 15px;
+        }
+        .form-group {
+          flex: 1;
+          margin-right: 10px;
+        }
+        .form-group:last-child {
+          margin-right: 0;
+        }
+        .modal-footer {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 15px;
+        }
+        .btn {
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        .btn-primary {
+          background-color: #007bff;
+          color: white;
+        }
+        .btn-success {
+          background-color: #28a745;
+          color: white;
+        }
+        .btn-danger {
+          background-color: #dc3545;
+          color: white;
+        }
+
+        /* Custom Checkbox Style */
+        .custom-checkbox {
+          width: 20px;
+          height: 20px;
+          cursor: pointer;
+          accent-color: #007bff;
+          margin-left: 10px;
+        }
+
+        .custom-checkbox:checked {
+          background-color: #007bff;
+          border-color: #007bff;
+        }
+
+        .custom-checkbox:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Image preview style */
+        .image-preview-container {
+          margin-top: 10px;
+          display: flex;
+          justify-content: center;
+          cursor: pointer;
+        }
+
+        .image-preview {
+          max-width: 100%;
+          max-height: 200px;
+          object-fit: cover;
+        }
+      `}</style>
+                                  </div>
                                 </td>
-                               
+                              
+
                                 <td>
-                                  <button 
-                                    onClick={() => handleMoveToSkitch(row.id)} 
-                                    disabled={row.sketchStatus === "cad" || row.status !== "Approved"} 
-                                    className={`btn btn-sm ${row.sketchStatus === "cad" ? "btn-secondary" : row.status === "Approved" ? "btn-success" : "btn-secondary"}`}
+                                  <div>
+                                    <button 
+                                     onClick={() =>ViewDesignerButton(row.orderId)}
+                                      className="btn btn-primary" 
+                                      style={{ width: "150px" }} // Increased width
+                                    >
+                                     View Designer
+                                    </button>
+                                    </div>
+                                    </td>
+                                    <td>
+                                  <button
+                                    onClick={() => handleMoveToRender(row.id)}
+                                    disabled={row.isRender === true || row.status !== "Approved"}
+                                    className={`btn btn-sm ${row.isRender === true ? "btn-secondary" : row.status === "Approved" ? "btn-success" : "btn-secondary"}`}
+                                    style={{ width: "150px" }} // Increased width
                                   >
-                                    {row.sketchStatus === "cad" ? "Moved to Render" : "Move to Render"}
+                                    {row.isRender === true ? "Moved to Render" : "Move to Render"}
                                   </button>
                                 </td>
-                          
-                        </td>
-
-
-
                               </tr>
                             ))}
                           </tbody>
                         </table>
                       </div>
                     )}
+
+                    <div
+                      className="w-full flex justify-end pr-4"
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <div className="pagination flex space-x-2 mt-4">
+                        <button
+                          onClick={() => paginate(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className={`px-3 py-1 border rounded-md ${
+                            currentPage === 1
+                              ? "bg-gray-300 cursor-not-allowed"
+                              : "bg-gray-500 text-white hover:bg-gray-600"
+                          }`}
+                        >
+                          <FaChevronLeft />
+                        </button>
+
+                        {[...Array(totalPages).keys()].map((num) => (
+                          <button
+                            key={num}
+                            onClick={() => paginate(num + 1)}
+                            className={`px-3 py-1 border rounded-md ${
+                              currentPage === num + 1
+                                ? "bg-gray-600 text-white"
+                                : "bg-gray-300"
+                            }`}
+                          >
+                            {num + 1}
+                          </button>
+                        ))}
+
+                        <button
+                          onClick={() => paginate(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className={`px-3 py-1 border rounded-md ${
+                            currentPage === totalPages
+                              ? "bg-gray-300 cursor-not-allowed"
+                              : "bg-gray-500 text-white hover:bg-gray-600"
+                          }`}
+                        >
+                          <FaChevronRight />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -218,4 +704,4 @@ function CadApprovalList() {
   );
 }
 
-export default CadApprovalList
+export default CadApprovalList;

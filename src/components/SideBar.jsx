@@ -150,11 +150,6 @@ const SideBar = () => {
                       <span className="sub-item">PD/Concept</span>
                     </a>
                   </li>
-                  <li onClick={() => navigate('/pdLists')}>
-                    <a>
-                      <span className="sub-item">Lists</span>
-                    </a>
-                  </li>
                   <li onClick={() => navigate('/approvalLists')}>
                     <a>
                       <span className="sub-item">Approval Lists</span>
@@ -163,64 +158,67 @@ const SideBar = () => {
                 </ul>
               </div>
             </li>
+            
+           
             <li className="nav-item">
-              <a data-bs-toggle="collapse" href="#tables">
-                <i className="fas fa-table" />
-                <p>Tables</p>
-                <span className="caret" />
-              </a>
-              <div className="collapse" id="tables">
-                <ul className="nav nav-collapse">
-                  {/* <li>
-                    <a href="tables/tables.html">
-                      <span className="sub-item">Basic Table</span>
-                    </a>
-                  </li> */}
-                  <li onClick={() => navigate('/dataTable')}>
-                    <a>
-                      <span className="sub-item">Datatables</span>
-                    </a>
-                  </li> */}
-                {/* </ul>
-              </div>
-            </li>
-            {/* <li className="nav-item">
               <a data-bs-toggle="collapse" href="#maps">
                 <i className="fas fa-map-marker-alt" />
-                <p>Maps</p>
+                <p>Sketches</p>
                 <span className="caret" />
               </a>
-              <div className="collapse" id="tables">
+              <div className="collapse" id="maps">
                 <ul className="nav nav-collapse">
-                  <li>
-                    <a href="maps/googlemaps.html">
-                      <span className="sub-item">Google Maps</span>
+                <li onClick={() => navigate('/skichlist')}>
+                    <a href="">
+                      <span className="sub-item">Sketch List</span>
                     </a>
                   </li>
-                  <li>
-                    <a href="maps/jsvectormap.html">
-                      <span className="sub-item">Jsvectormap</span>
+                  <li onClick={() => navigate('/skichapprovallist')}>
+                    <a href="">
+                      <span className="sub-item">Sketch Approval List</span>
                     </a>
                   </li>
                 </ul>
               </div>
-            </li> */}
-            {/* <li className="nav-item">
+            </li>
+
+            <li className="nav-item">
+              <a data-bs-toggle="collapse" href="#tables">
+                <i className="fas fa-table" />
+                <p>CAD</p>
+                <span className="caret" />
+              </a>
+              <div className="collapse" id="tables">
+                <ul className="nav nav-collapse">
+                  <li onClick={() => navigate('/cadlist')}>
+                    <a href="">
+                      <span className="sub-item">List</span>
+                    </a>
+                  </li>
+                  <li onClick={() => navigate('/cad_approval_list')}>
+                    <a>
+                      <span className="sub-item">Approval List</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li className="nav-item">
               <a data-bs-toggle="collapse" href="#charts">
                 <i className="far fa-chart-bar" />
-                <p>Reports</p>
+                <p>Render</p>
                 <span className="caret" />
               </a>
               <div className="collapse" id="charts">
                 <ul className="nav nav-collapse">
-                  <li onClick={() => navigate("/designReports")}>
-                    <a>
-                      <span className="sub-item">Design Reports</span>
+                <li onClick={() => navigate('/render_list')}>
+                    <a href="">
+                      <span className="sub-item">List</span>
                     </a>
                   </li>
-                  <li onClick={() => navigate("/designerReports")}>
-                    <a>
-                      <span className="sub-item">Designer Reports</span>
+                  <li onClick={() => navigate('/renderApproval__list')}>
+                    <a href="">
+                      <span className="sub-item">Approval List</span>
                     </a>
                   </li>
                 </ul>
@@ -240,57 +238,107 @@ const SideBar = () => {
                 <span className="badge badge-secondary">1</span>
               </a>
             </li> */}
-            {/* <li className="nav-item">
+            <li className="nav-item">
               <a data-bs-toggle="collapse" href="#submenu">
                 <i className="fas fa-bars" />
-                <p>Menu Levels</p>
+                <p>Design</p>
                 <span className="caret" />
               </a>
               <div className="collapse" id="submenu">
-                <ul className="nav nav-collapse">
-                  <li>
-                    <a data-bs-toggle="collapse" href="#subnav1">
-                      <span className="sub-item">Level 1</span>
-                      <span className="caret" />
+              <ul className="nav nav-collapse">
+                <li onClick={() => navigate('/render_list')}>
+                    <a href="">
+                      <span className="sub-item">List</span>
                     </a>
-                    <div className="collapse" id="subnav1">
-                      <ul className="nav nav-collapse subnav">
-                        <li>
-                          <a href="#">
-                            <span className="sub-item">Level 2</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#">
-                            <span className="sub-item">Level 2</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
                   </li>
-                  <li>
-                    <a data-bs-toggle="collapse" href="#subnav2">
-                      <span className="sub-item">Level 1</span>
-                      <span className="caret" />
-                    </a>
-                    <div className="collapse" id="subnav2">
-                      <ul className="nav nav-collapse subnav">
-                        <li>
-                          <a href="#">
-                            <span className="sub-item">Level 2</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <span className="sub-item">Level 1</span>
+                  <li onClick={() => navigate('/renderApproval__list')}>
+                    <a href="">
+                      <span className="sub-item">Approval List</span>
                     </a>
                   </li>
                 </ul>
               </div>
-            </li> */}
+            </li>
+
+            <li className="nav-item">
+              <a data-bs-toggle="collapse" href="#report">
+                <i className="fas fa-bars" />
+                <p>Report</p>
+                <span className="caret" />
+              </a>
+              <div className="collapse" id="report">
+              <ul className="nav nav-collapse">
+                <li onClick={() => navigate('/render_list')}>
+                    <a href="">
+                      <span className="sub-item">Design Report</span>
+                    </a>
+                  </li>
+                  <li onClick={() => navigate('/renderApproval__list')}>
+                    <a href="">
+                      <span className="sub-item">Designer Report</span>
+                    </a>
+                  </li>
+                  <li onClick={() => navigate('/renderApproval__list')}>
+                    <a href="">
+                      <span className="sub-item">Customer Feedback</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+
+            <li className="nav-item">
+              <a data-bs-toggle="collapse" href="#album">
+                <i className="fas fa-bars" />
+                <p>Albums</p>
+                <span className="caret" />
+              </a>
+              <div className="collapse" id="album">
+              <ul className="nav nav-collapse">
+               
+                  <li onClick={() => navigate('/renderApproval__list')}>
+                    <a href="">
+                      <span className="sub-item">Send To Customer</span>
+                    </a>
+                  </li>
+                  <li onClick={() => navigate('/renderApproval__list')}>
+                    <a href="">
+                      <span className="sub-item">Dew Album</span>
+                    </a>
+                  </li>
+                    
+                </ul>
+                
+              </div>
+              
+            </li>
+            <li className="nav-item">
+              <a data-bs-toggle="collapse" href="#customer">
+                <i className="fas fa-bars" />
+                <p>Customers</p>
+                <span className="caret" />
+              </a>
+              <div className="collapse" id="customer">
+              <ul className="nav nav-collapse">
+               
+                  <li onClick={() => navigate('/create_customer')}>
+                    <a href="">
+                      <span className="sub-item">Create Customer</span>
+                    </a>
+                  </li>
+                  <li onClick={() => navigate('/customer__list')}>
+                    <a href="">
+                      <span className="sub-item">Customer List</span>
+                    </a>
+                  </li>
+                    
+                </ul>
+                
+              </div>
+              
+            </li>
+            
+            
           </ul>
         </div>
       </div>

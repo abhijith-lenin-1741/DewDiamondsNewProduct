@@ -14,7 +14,7 @@ import SideBar from "../SideBar";
 import Cookies from "js-cookie";
 
 function CadList() {
-  const API_URL = "http://localhost:5000/api/v1/cad/getAllCads";
+  const API_URL =  window.url+"cad/getAllCads";
   const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +30,10 @@ function CadList() {
   const [completedStartDate, setCompletedStartDate] = useState("");
   const [completedEndDate, setCompletedEndDate] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-
+  const handleEdit = (customerId) => {
+    // Implement your edit logic here
+    navigate(`/cad_edit/${customerId}`);
+};
   useEffect(() => {
     const savedToken = Cookies.get("authToken");
     if (!savedToken) {
@@ -140,72 +143,69 @@ function CadList() {
                               <tr>
                                 <th>ID</th>
                                 <th>CadNo</th>
-                                <th>Concept ID</th>
-                                <th>Request Cad Count</th>
+                                <th style={{whiteSpace:"nowrap"}}>Concept ID</th>
+                                <th style={{whiteSpace:"nowrap"}}>Request Cad Count</th>
                                 <th>Image</th>
-                                <th>CAD Designer</th>
-                                <th>Day In Cad</th>
-                                <th>Promise Date</th>
-                                <th>Completed Date</th>
+                                <th style={{whiteSpace:"nowrap"}}>CAD Designer</th>
+                                <th style={{whiteSpace:"nowrap"}}>Day In Cad</th>
+                                <th style={{whiteSpace:"nowrap"}}>Promise Date</th>
+                                <th style={{whiteSpace:"nowrap"}}>Completed Date</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                               </tr>
                             </thead>
                             <tbody>
                               {currentRows.map((row) => (
-                                <React.Fragment key={row.id}>
-                                  {activeRowId === row.id && (
-                                    <tr className="absolute w-full bg-gray-100 border-b border-gray-300">
-                                      <td colSpan="11" className="p-2">
-                                        <div className="flex justify-between px-4" >
-                                          <button
-                                          
-                                            onClick={() => handleEdit(row.id)}
-                                            disabled={row.status !== "Pending"}
-                                            className="p-2 rounded-md flex items-center bg-blue-500 text-white hover:bg-blue-600"
-                                          >
-                                            <FaEdit />
-                                          </button>{" "}
-                                          &nbsp;
-                                          <button
-                                           
-                                            onClick={() => handleDelete(row.id)}
-                                            disabled={row.status !== "Pending"}
-                                            className="p-2 rounded-md flex items-center bg-red-500 text-white hover:bg-red-600"
-                                          >
-                                            <FaTrash />
-                                          </button>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  )}
-                                  <tr>
-                                    <td>{row.id}</td>
-                                    <td>{row.cadNo}</td>
-                                    <td>{row.orderId}</td>
-                                    <td>{row.reqCadCount}</td>
-                                    <td>"null"</td>
-                                    <td>Vishnu</td>
-                                    <td>0</td>
-                                    <td>{row.promiseDate}</td>
-                                    <td>{row.cadCompletedDate}</td>
-                                    <td>{row.status}</td>
-                                    <td className="relative">
-                                      <button
-                                        className="p-2 border rounded-md "
-                                        onClick={() =>
-                                          setActiveRowId(
-                                            activeRowId === row.id
-                                              ? null
-                                              : row.id
-                                          )
-                                        }
-                                      >
-                                        <FaEllipsisV size={13} />
-                                      </button>
-                                    </td>
-                                  </tr>
-                                </React.Fragment>
+                                <tr key={row.id}>
+                                  <td>{row.id}</td>
+                                  <td>{row.cadNo}</td>
+                                  <td>{row.orderId}</td>
+                                  <td>{row.reqCadCount}</td>
+                                  <td>"null"</td>
+                                  <td>Vishnu</td>
+                                  <td>0</td>
+                                  <td>{row.promiseDate}</td>
+                                  <td>{row.cadCompletedDate}</td>
+                                  <td>{row.status}</td>
+                                  {/* <td>
+                                    <FaEdit
+                                      onClick={() => handleEdit(row.id)}
+                                      className={row.status !== "Pending" ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                                    />
+                                    &nbsp;&nbsp;&nbsp;
+                                    <FaTrash
+                                      onClick={() => handleDelete(row.id)}
+                                      className={row.status !== "Pending" ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                                    />
+                                  </td> */}
+                                  <td>
+  <FaEdit
+    onClick={() => {
+      if (row.status !== "Approved" && row.status !== "Rejected") {
+        handleEdit(row.id);
+      }
+    }}
+    className={
+      row.status === "Approved" || row.status === "Rejected"
+        ? "opacity-50 cursor-not-allowed"
+        : "cursor-pointer"
+    }
+  />
+  &nbsp;&nbsp;&nbsp;
+  <FaTrash
+    onClick={() => {
+      if (row.status !== "Approved" && row.status !== "Rejected") {
+        handleDelete(row.id);
+      }
+    }}
+    className={
+      row.status === "Approved" || row.status === "Rejected"
+        ? "opacity-50 cursor-not-allowed"
+        : "cursor-pointer"
+    }
+  />
+</td>
+                                </tr>
                               ))}
                             </tbody>
                           </table>

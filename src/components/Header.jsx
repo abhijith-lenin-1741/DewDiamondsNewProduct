@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 const Header = () => {
   function logOutFunction() {
+  
     // window.localStorage.removeItem('loggedInUsername');
     // window.localStorage.removeItem('loggedInUserPassword');
     // window.localStorage.removeItem('loggedInUserrole');
@@ -371,7 +372,7 @@ const Header = () => {
                         Account Setting
                       </a>
                       <div className="dropdown-divider" />
-                      <a class="dropdown-item" href="#" onClick={logOutFunction}>
+                      <a class="dropdown-item" href="/" onClick={logOutFunction}>
                         Logout
                       </a>
                     </li>
